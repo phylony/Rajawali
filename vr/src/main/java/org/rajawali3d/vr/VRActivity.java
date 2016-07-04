@@ -18,23 +18,23 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import com.google.vrtoolkit.cardboard.CardboardActivity;
-import com.google.vrtoolkit.cardboard.CardboardView;
+import com.google.vr.sdk.base.GvrView;
+import com.google.vr.sdk.base.GvrActivity;
 import org.rajawali3d.vr.renderer.VRRenderer;
 import org.rajawali3d.vr.surface.VRSurfaceView;
 
 /**
  * @author dennis.ippel
  */
-public class VRActivity extends CardboardActivity {
+public class VRActivity extends GvrActivity {
 
-    private CardboardView mSurfaceView;
+    private GvrView mSurfaceView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-        mSurfaceView = new VRSurfaceView(this);
+        mSurfaceView = new GvrView(this);
 
         addContentView(mSurfaceView, new ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT));
 
@@ -47,15 +47,15 @@ public class VRActivity extends CardboardActivity {
 			uiFlags |= View.SYSTEM_UI_FLAG_IMMERSIVE;
 		}
         mSurfaceView.setSystemUiVisibility(uiFlags);
-
-        setCardboardView(mSurfaceView);
+        setGvrView(mSurfaceView);
+//        setCardboardView(mSurfaceView);
 	}
 
 	protected void setRenderer(VRRenderer renderer) {
 	    mSurfaceView.setRenderer(renderer);
 	}
 
-    public CardboardView getSurfaceView() {
+    public GvrView getSurfaceView() {
         return mSurfaceView;
     }
 

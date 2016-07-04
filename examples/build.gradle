@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "org.rajawali3d.examples"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion rootProject.targetSdk
         versionCode rootProject.versionCode
         versionName rootProject.versionName
@@ -39,6 +39,12 @@ android {
     lintOptions {
         abortOnError false;
     }
+    repositories {
+        flatDir {
+            dirs "libs"
+        }
+    }
+
 }
 
 dependencies {
@@ -47,6 +53,9 @@ dependencies {
     compile project.depRecycler
     compile project.depGSON
     compile project.depIon
+    compile(name: "audio", ext: "aar")
+    compile(name: "base", ext: "aar")
+    compile(name: "common", ext: "aar")
 
 
     compile project(':rajawali')

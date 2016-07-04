@@ -5,7 +5,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.view.MotionEvent;
-import com.google.vrtoolkit.cardboard.audio.CardboardAudioEngine;
+
+import com.google.vr.sdk.audio.GvrAudioEngine;
+
+
 import org.rajawali3d.Object3D;
 import org.rajawali3d.animation.Animation.RepeatMode;
 import org.rajawali3d.animation.SplineTranslateAnimation3D;
@@ -28,9 +31,9 @@ public class RajawaliVRExampleRenderer extends VRRenderer {
     private SquareTerrain terrain;
     private Sphere lookatSphere;
     private Object3D capital;
-    private CardboardAudioEngine cardboardAudioEngine;
-    private volatile int spaceShipSoundId = CardboardAudioEngine.INVALID_ID;
-    private volatile int sonarSoundId = CardboardAudioEngine.INVALID_ID;
+    private GvrAudioEngine cardboardAudioEngine;
+    private volatile int spaceShipSoundId = GvrAudioEngine.INVALID_ID;
+    private volatile int sonarSoundId = GvrAudioEngine.INVALID_ID;
 
     public RajawaliVRExampleRenderer(Context context) {
         super(context);
@@ -153,7 +156,7 @@ public class RajawaliVRExampleRenderer extends VRRenderer {
 
     private void initAudio() {
         cardboardAudioEngine =
-                new CardboardAudioEngine(getContext().getAssets(), CardboardAudioEngine.RenderingQuality.HIGH);
+                new GvrAudioEngine(getContext(), GvrAudioEngine.RenderingMode.BINAURAL_HIGH_QUALITY);
 
         new Thread(
                 new Runnable() {
@@ -266,11 +269,11 @@ public class RajawaliVRExampleRenderer extends VRRenderer {
             lookatSphere.setColor(Color.YELLOW);
         }
 
-        if(spaceShipSoundId != CardboardAudioEngine.INVALID_ID) {
+        if(spaceShipSoundId != GvrAudioEngine.INVALID_ID) {
             cardboardAudioEngine.setSoundObjectPosition(
                     spaceShipSoundId, (float) capital.getX(), (float) capital.getY(), (float) capital.getZ());
         }
-        if(sonarSoundId != CardboardAudioEngine.INVALID_ID) {
+        if(sonarSoundId != GvrAudioEngine.INVALID_ID) {
             cardboardAudioEngine.setSoundObjectPosition(
                     sonarSoundId, (float) lookatSphere.getX(), (float) lookatSphere.getY(), (float) lookatSphere.getZ()
             );
