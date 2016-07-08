@@ -51,7 +51,7 @@ public class VRActivity extends GvrActivity {
 //        setCardboardView(mSurfaceView);
 	}
 
-	protected void setRenderer(VRRenderer renderer) {
+	protected void setRenderer(GvrView.StereoRenderer renderer) {
 	    mSurfaceView.setRenderer(renderer);
 	}
 

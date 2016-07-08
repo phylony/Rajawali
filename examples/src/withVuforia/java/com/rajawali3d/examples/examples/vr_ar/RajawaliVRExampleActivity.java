@@ -4,6 +4,9 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
+
+import com.google.vr.sdk.base.GvrViewerParams;
+
 import org.rajawali3d.util.RajLog;
 import org.rajawali3d.vr.VRActivity;
 
@@ -25,6 +28,8 @@ public class RajawaliVRExampleActivity extends VRActivity {
 
         mRenderer = new RajawaliVRExampleRenderer(this);
         setRenderer(mRenderer);
+        getGvrView().getGvrViewerParams();
+
 
         setConvertTapIntoTrigger(true);
     }

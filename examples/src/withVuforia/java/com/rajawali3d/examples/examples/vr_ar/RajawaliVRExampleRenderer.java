@@ -7,6 +7,8 @@ import android.graphics.Color;
 import android.view.MotionEvent;
 
 import com.google.vr.sdk.audio.GvrAudioEngine;
+import com.google.vr.sdk.base.Eye;
+import com.google.vrtoolkit.cardboard.proto.nano.CardboardDevice;
 
 
 import org.rajawali3d.Object3D;
