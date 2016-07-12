@@ -66,6 +66,8 @@ public class Object3D extends ATransformable3D implements Comparable<Object3D>, 
 	protected Object3D mParent;
 	protected List<Object3D> mChildren;
 	protected String mName;
+	public    String mType;
+	public    boolean isSelected;
 
 	protected boolean mDoubleSided = false;
 	protected boolean mBackSided = false;
