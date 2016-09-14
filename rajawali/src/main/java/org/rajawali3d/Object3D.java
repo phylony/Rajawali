@@ -14,7 +14,6 @@ package org.rajawali3d;
 
 import android.graphics.Color;
 import android.opengl.GLES20;
-
 import android.support.annotation.NonNull;
 import org.rajawali3d.bounds.BoundingBox;
 import org.rajawali3d.bounds.IBoundingVolume;
@@ -66,8 +65,8 @@ public class Object3D extends ATransformable3D implements Comparable<Object3D>, 
 	protected Object3D mParent;
 	protected List<Object3D> mChildren;
 	protected String mName;
-	public    String mType;
-	public    boolean isSelected;
+    public    String mType;
+    public    boolean isSelected;
 
 	protected boolean mDoubleSided = false;
 	protected boolean mBackSided = false;
@@ -96,6 +95,8 @@ public class Object3D extends ATransformable3D implements Comparable<Object3D>, 
 	protected int mBlendFuncDFactor;
 	protected boolean mEnableDepthTest = true;
 	protected boolean mEnableDepthMask = true;
+
+    protected volatile boolean mIsDestroyed = false;
 
 	public Object3D() {
 		super();
@@ -131,8 +132,7 @@ public class Object3D extends ATransformable3D implements Comparable<Object3D>, 
 			float[] colors, int[] indices, boolean createVBOs) {
 		mGeometry.setData(vertexBufferInfo, normalBufferInfo, textureCoords, colors, indices, createVBOs);
 		mIsContainerOnly = false;
-		mElementsBufferType = mGeometry.areOnlyShortBuffersSupported() ? GLES20.GL_UNSIGNED_SHORT
-				: GLES20.GL_UNSIGNED_INT;
+		mElementsBufferType = GLES20.GL_UNSIGNED_INT;
 	}
 
 	/**
@@ -162,8 +162,7 @@ public class Object3D extends ATransformable3D implements Comparable<Object3D>, 
 		mGeometry.setData(vertices, verticesUsage, normals, normalsUsage, textureCoords, textureCoordsUsage, colors,
 				colorsUsage, indices, indicesUsage, createVBOs);
 		mIsContainerOnly = false;
-		mElementsBufferType = mGeometry.areOnlyShortBuffersSupported() ? GLES20.GL_UNSIGNED_SHORT
-				: GLES20.GL_UNSIGNED_INT;
+		mElementsBufferType = GLES20.GL_UNSIGNED_INT;
 	}
 
 	/**
@@ -199,8 +198,16 @@ public class Object3D extends ATransformable3D implements Comparable<Object3D>, 
 	 */
 	public void render(Camera camera, final Matrix4 vpMatrix, final Matrix4 projMatrix, final Matrix4 vMatrix,
 			final Matrix4 parentMatrix, Material sceneMaterial) {
-		if (!mIsVisible && !mRenderChildrenAsBatch)
-			return;
+		if (isDestroyed() || (!mIsVisible && !mRenderChildrenAsBatch)) {
+            return;
+        }
+
+        if (parentMatrix != null) {
+            if (mParentMatrix == null) {
+                mParentMatrix = new Matrix4();
+            }
+            mParentMatrix.setAll(parentMatrix);
+        }
 
 		Material material = sceneMaterial == null ? mMaterial : sceneMaterial;
 		preRender();
@@ -253,8 +260,22 @@ public class Object3D extends ATransformable3D implements Comparable<Object3D>, 
 				if (material == null) {
 					RajLog.e("[" + this.getClass().getName()
 							+ "] This object can't render because there's no material attached to it.");
-					throw new RuntimeException(
-							"This object can't render because there's no material attached to it.");
+					/*throw new RuntimeException(
+							"This object can't render because there's no material attached to it.");*/
+					if (mEnableBlending) {
+						GLES20.glDisable(GLES20.GL_BLEND);
+					}
+
+					if (mDoubleSided) {
+						GLES20.glEnable(GLES20.GL_CULL_FACE);
+					} else if (mBackSided) {
+						GLES20.glCullFace(GLES20.GL_BACK);
+					}
+					if (!mEnableDepthTest) {
+						GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+						GLES20.glDepthFunc(GLES20.GL_LESS);
+					}
+					return;
 				}
 				material.useProgram();
 
@@ -517,6 +538,10 @@ public class Object3D extends ATransformable3D implements Comparable<Object3D>, 
 		mEnableDepthMask = !value;
 	}
 
+    public boolean isDestroyed() {
+        return mIsDestroyed;
+    }
+
 	public int getDrawingMode() {
 		return mDrawingMode;
 	}
@@ -658,8 +683,7 @@ public class Object3D extends ATransformable3D implements Comparable<Object3D>, 
 		clone.getGeometry().copyFromGeometry3D(mGeometry);
 		clone.isContainer(mIsContainerOnly);
 		if (copyMaterial) clone.setMaterial(mMaterial);
-		clone.mElementsBufferType = mGeometry.areOnlyShortBuffersSupported() ? GLES20.GL_UNSIGNED_SHORT
-				: GLES20.GL_UNSIGNED_INT;
+		clone.mElementsBufferType = GLES20.GL_UNSIGNED_INT;
 		clone.mTransparent = this.mTransparent;
 		clone.mEnableBlending = this.mEnableBlending;
 		clone.mBlendFuncSFactor = this.mBlendFuncSFactor;
@@ -829,15 +853,13 @@ public class Object3D extends ATransformable3D implements Comparable<Object3D>, 
 				uvOut = (uvIn * (tile.height/atlas.getHeight())) + tile.y/atlas.getHeight();
 			fb.put(i, (float) uvOut);
 		}
-		mGeometry.changeBufferData(mGeometry.mTexCoordBufferInfo, fb, 0);
+		mGeometry.changeBufferData(mGeometry.getTexCoordBufferInfo(), fb, 0);
 
 	}
 
 	public void destroy() {
-		if (mGeometry != null)
+        mIsDestroyed = true;
 			mGeometry.destroy();
-		if (mMaterial != null)
-			MaterialManager.getInstance().removeMaterial(mMaterial);
 		mMaterial = null;
 		mGeometry = null;
 		for (int i = 0, j = mChildren.size(); i < j; i++)
