@@ -41,6 +41,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author dennis.ippel
  *
  */
+
 public class Object3D extends ATransformable3D implements Comparable<Object3D>, INode {
 
     public static final int RED = 0;
